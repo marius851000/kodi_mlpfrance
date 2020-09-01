@@ -202,7 +202,10 @@ def map_playable(content, is_playable):
 def get_video_page(url):
     soup = get_soup(url)
     video_script_tag = soup.find("div", attrs={"id": "makamour"}).next_element.next_element
-    video_script = video_script_tag.children.__next__()
+    if sys.version_info.major == 3:
+        video_script = video_script_tag.children.__next__()
+    else:
+        video_script = video_script_tag.text
 
     video_script = video_script.split("NPlayer(document.querySelector('#makamour'), ")[-1].split(");\n")[0]
 
@@ -312,7 +315,11 @@ def get_music_page_data(url):
         elif child.name == "script":
             if child.get("src") != None:
                 continue
-            json_string = child.children.__next__().split("var playlist = ")[1].split("];")[0] + "]"
+            if sys.version_info.major == 3:
+                json_string = child.children.__next__().split("var playlist = ")[1].split("];")[0] + "]"
+            else:
+                json_string = child.text.split("var playlist = ")[1].split("];")[0] + "]"
+
             new_json_string = ""
             for line in json_string.split("\n"):
                 line = line.strip()
