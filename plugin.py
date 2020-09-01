@@ -52,7 +52,7 @@ COUNTRY_TO_IETF = {
 }
 
 if HAVE_EXTENSION:
-    LANGUAGE_ORDER = xbmcplugin.x_getLanguageOrder()
+    LANGUAGE_ORDER = map(lambda x: x.lower(), xbmcplugin.x_getLanguageOrder())
 else:
     LANGUAGE_ORDER = ["fr", "en"]
 
@@ -92,17 +92,23 @@ def get_favorite_avalaible_language(data):
     return get_favorite_language_in_list(avalaible_language)
 
 def get_favorite_language_in_list(list):
+    print("fav lang")
+    list_source = list
     list = map(lambda x: x.lower(), list)
-    # search for y_x -> y_x and y -> y (exact match)
+    print(list)
+    print(LANGUAGE_ORDER)
+    # search for y_x -> y_x (exact match)
     for lang in LANGUAGE_ORDER:
-        if lang.lower() in list:
-            return lang
-    # search for y_x -> y or y_x -> y_z
-    list_without_subtag = map(lambda x: x.split(".")[0], list)
+        if len(lang.split("-")) >= 2:
+            if lang.lower() in list:
+                return list_source[list.index(lang.lower())]
+    list_without_subtag = map(lambda x: x.split("-")[0], list)
+    print(list_without_subtag)
+    # search for y_x -> y or y_x -> y_z or y -> y
     for lang in LANGUAGE_ORDER:
         language_code = lang.split("-")[0].lower()
-        if language_code in lang_without_subtag:
-            return list[list_without_subtag.index(language_code)]
+        if language_code in list_without_subtag:
+            return list_source[list_without_subtag.index(language_code)]
     # default to the first language in list
     return list[0]
 
