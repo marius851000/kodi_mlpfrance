@@ -131,6 +131,10 @@ def display_folder(folder):
             is_folder = True
             if element_to_display["is_playable"]:
                 elem_item.setProperty("IsPlayable", str(element_to_display["is_playable"]).lower())
+                if "kind" in element_to_display:
+                    elem_item.setInfo(element_to_display["kind"])
+                else:
+                    elem_item.setInfo(plugin_param.CATEGORY, {})
                 is_folder = not element_to_display["is_playable"]
             xbmcplugin.addDirectoryItem(_handle, element_to_display["kodi_link"], elem_item, is_folder)
     xbmcplugin.endOfDirectory(_handle)
@@ -205,6 +209,7 @@ def list_episodes(season):
 
             if season_in_link == "egms":
                 item["kodi_link"] = get_url(action="list_egms_episode", episode=select_prefered_media_url(item).split("=")[-1], have_vf = str(item["link_vf"] != None), have_vo = str(item["link_vo"] != None))
+                item["is_playable"] = False
             else:
                 item["kodi_link"] = get_url(action="play_episode", season=season_in_link, episode=select_prefered_media_url(item).split("=")[-1], language=get_favorite_avalaible_language(item))
 
@@ -224,6 +229,7 @@ def list_egms_episode(episode, have_vf, have_vo):
 
     main_item = xbmcgui.ListItem(label = "main video")
     main_item.setProperty("IsPlayable", "true")
+    main_item.setInfo("video", {})
     xbmcplugin.addDirectoryItem(_handle, get_url(action="play_egms", episode=episode, have_vf=have_vf, have_vo=have_vo, channel=0), main_item, False)
 
     video_url = "http://mlp-france.com/episodes/egms/vo.php?ep={}".format(episode)
@@ -232,6 +238,7 @@ def list_egms_episode(episode, have_vf, have_vo):
     for choice in video_data["choices"]:
         choice_item = xbmcgui.ListItem(label = "choice - " + choice[0])
         choice_item.setProperty("IsPlayable", "true")
+        choice_item.setInfo("video", {})
         xbmcplugin.addDirectoryItem(_handle, get_url(action="play_egms", episode=episode, have_vf=have_vf, have_vo=have_vo, channel=choice[1]), choice_item, False)
 
     xbmcplugin.endOfDirectory(_handle)
@@ -270,6 +277,7 @@ def display_movie_videos(elements, movie_id):
     for elem in elements:
         item = xbmcgui.ListItem(label = elem[0])
         item.setProperty("IsPlayable", "true")
+        item.setInfo("video", {})
         xbmcplugin.addDirectoryItem(_handle, get_url(action="play_movie", movie=movie_id, number=nb), item, False)
         nb += 1
     xbmcplugin.endOfDirectory(_handle)
