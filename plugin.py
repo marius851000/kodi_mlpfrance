@@ -89,7 +89,10 @@ def get_favorite_avalaible_language(data):
         avalaible_language.append("fr")
     if data["link_vo"] != None:
         avalaible_language.append("en")
-    return get_favorite_language_in_list(avalaible_language)
+    if len(avalaible_language) == 0:
+        return None
+    else:
+        return get_favorite_language_in_list(avalaible_language)
 
 def get_favorite_language_in_list(list):
     print("fav lang")
@@ -207,6 +210,8 @@ def list_seasons():
 def list_episodes(season):
     to_display = mlpfrance.list_episodes(season)
     for category in to_display:
+        to_del = []
+        item_count = 0
         for item in category[1]:
             if season == "egms2":
                 season_in_link = "egms"
@@ -217,8 +222,15 @@ def list_episodes(season):
                 item["kodi_link"] = get_url(action="list_egms_episode", episode=select_prefered_media_url(item).split("=")[-1], have_vf = str(item["link_vf"] != None), have_vo = str(item["link_vo"] != None))
                 item["is_playable"] = False
             else:
-                item["kodi_link"] = get_url(action="play_episode", season=season_in_link, episode=select_prefered_media_url(item).split("=")[-1], language=get_favorite_avalaible_language(item))
-
+                language = get_favorite_avalaible_language(item)
+                if language == None:
+                    to_del.append(item_count)
+                else:
+                    item["kodi_link"] = get_url(action="play_episode", season=season_in_link, episode=select_prefered_media_url(item).split("=")[-1], language=language)
+            item_count += 1
+        to_del.reverse()
+        for item_to_del in to_del:
+            del category[1][item_to_del]
     display_folder(
         to_display
     )
