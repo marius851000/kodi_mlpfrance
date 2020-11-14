@@ -187,6 +187,7 @@ def select_category():
         ["bonus officiel", "list_bonus", "http://mlp-france.com/source/banni%C3%A8re%20bonus.png"],
         ["mashup films", "list_mashups", "http://mlp-france.com/source/banni%C3%A8re%20Extras%20v2.png"],
         #TODO: commented data
+        #["retro mlp", "list_retro_mlp", "http://mlp-france.com/source/retroban.png"]
         #["vidéos fandom", "list_fandoms"],
         #["mon petit poney (1983)", "list_mpps"],
         #["my little pony tales", "list_tales"],
@@ -222,11 +223,10 @@ def list_episodes(season):
                 item["kodi_link"] = get_url(action="list_egms_episode", episode=select_prefered_media_url(item).split("=")[-1], have_vf = str(item["link_vf"] != None), have_vo = str(item["link_vo"] != None))
                 item["is_playable"] = False
             else:
-                language = get_favorite_avalaible_language(item)
-                if language == None:
+                if item["link_vf"] == None and item["link_vo"] == None:
                     to_del.append(item_count)
                 else:
-                    item["kodi_link"] = get_url(action="play_episode", season=season_in_link, episode=select_prefered_media_url(item).split("=")[-1], language=language)
+                    item["kodi_link"] = get_url(action="play_episode", season=season_in_link, episode=select_prefered_media_url(item).split("=")[-1], have_fr = item["link_vf"] != None, have_en = item["link_vo"] != None)
             item_count += 1
         to_del.reverse()
         for item_to_del in to_del:
@@ -235,9 +235,14 @@ def list_episodes(season):
         to_display
     )
 
-def play_episode(season, episode, language):
-    #TODO: rewrite so language is not passed in parameter
-    play_video(mlpfrance.get_episode(season, episode, language), [language], language)
+def play_episode(season, episode, have_fr, have_en):
+    languages = []
+    if have_fr:
+        languages.append("fr")
+    if have_en:
+        languages.append("en")
+    language = get_favorite_language_in_list(languages)
+    play_video(mlpfrance.get_episode(season, episode, language), languages, language)
 
 def list_egms_episode(episode, have_vf, have_vo):
     if have_vf == "True":
@@ -460,6 +465,61 @@ def play_mashup_video(post_fr, post_en):
     video_page_url = "http://mlp-france.com/extras/mashup/{}".format(post)
     play_video(mlpfrance.get_video_page(video_page_url), avalaible_lang, lang)
 
+def list_retro_mlp():
+    sub_content = [
+        ["Mon petit poney (1983)", "list_g1"],
+        ["My little pony tales", "list_g2"],
+        ["My little pony g3", "list_g3"]
+    ]
+
+    for generation in sub_content:
+        gen_item = xbmcgui.ListItem(label = generation[0])
+        xbmcplugin.addDirectoryItem(_handle, get_url(action = generation[1]), gen_item, True)
+    xbmcplugin.endOfDirectory(_handle)
+
+def list_g1():
+    data = mlpfrance.get_list_page_data("http://mlp-france.com/retro/g1.php")
+    data = mlpfrance.map_playable(
+        map_kodi_link(
+            data,
+            lambda x: get_vid_url(x, "play_g1_video")
+        ),
+        True
+    )
+    display_folder(data)
+
+def play_g1_video(post_fr, post_en):
+    (post, lang, avalaible_language) = get_video_data_biling(post_fr, post_en)
+    video_page_url = "http://mlp-france.com/retro/g1/" + post
+    play_video(mlpfrance.get_video_page(video_page_url), avalaible_language, lang)
+
+def list_g2():
+    data = mlpfrance.get_list_page_data("http://mlp-france.com/retro/g2.php")
+    data = mlpfrance.map_playable(
+        map_kodi_link(
+            data,
+            lambda x: get_vid_url(x, "play_g2_video")
+        ),
+        True
+    )
+    display_folder(data)
+
+def play_g2_video(post_fr, post_en):
+    (post, lang, avalaible_language) = get_video_data_biling(post_fr, post_en)
+    video_page_url = "http://mlp-france.com/retro/g2/" + post
+    play_video(mlpfrance.get_video_page(video_page_url), avalaible_language, lang)
+
+def list_g3():
+    data = mlpfrance.get_list_page_data("http://mlp-france.com/retro/g3.php")
+    data = mlpfrance.map_playable(
+        map_kodi_link(
+            data,
+            lambda x: get_vid_url(x, "play_g3_video")
+        ),
+        True
+    )
+    display_folder(data)
+
 ##########
 # MUSICS #
 ##########
@@ -537,7 +597,7 @@ def router(paramstring):
         elif action == "list_episodes":
             list_episodes(params["season"])
         elif action == "play_episode":
-            play_episode(params["season"], params["episode"], params["language"])
+            play_episode(params["season"], params["episode"], have_fr = params["have_fr"], have_en = params["have_en"])
         elif action == "list_egms_episode":
             list_egms_episode(params["episode"], params["have_vf"], params["have_vo"])
         elif action == "play_egms":
@@ -576,6 +636,18 @@ def router(paramstring):
             list_mashups()
         elif action == "play_mashup_video":
             play_mashup_video(params["post_fr"], params["post_en"])
+        elif action == "list_retro_mlp":
+            list_retro_mlp()
+        elif action == "list_g1":
+            list_g1()
+        elif action == "play_g1_video":
+            play_g1_video(params["post_fr"], params["post_en"])
+        elif action == "list_g2":
+            list_g2()
+        elif action == "play_g2_video":
+            play_g2_video(params["post_fr"], params["post_en"])
+        elif action == "list_g3":
+            list_g3()
         # musics
         #TODO: karaoké also in here
         elif action == "list_albums":

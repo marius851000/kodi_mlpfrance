@@ -100,6 +100,7 @@ def get_list_page_data(url, fix_p = False, soup = None):
                     elems.append(td)
 
         elif child.name == "p":
+            found_child = False
             for link in child.find_all("a"):
                 picture_element = link.find("img")
                 if picture_element:
@@ -107,7 +108,10 @@ def get_list_page_data(url, fix_p = False, soup = None):
                     name = None
                 else:
                     picture = None
-                    name = link.find("b").text
+                    try:
+                        name = link.find("b").text
+                    except:
+                        continue
                 #get label if possible
                 sub_page = {
                     "picture": picture,
@@ -115,6 +119,13 @@ def get_list_page_data(url, fix_p = False, soup = None):
                     "name": name,
                 }
                 found_video_childrens.append(sub_page)
+                found_child = True
+
+            if not found_child:
+                if len(child.find_all("span", attrs={"class": "large"})) != 0:
+                    actual_category = child.find("b").text.strip()
+                    if len(child.find_all("a")) != 0:
+                        elems.append(child)
 
         elif child.name == "span" and fix_p:
             if child.get("class") == None:
@@ -152,6 +163,7 @@ def get_list_page_data(url, fix_p = False, soup = None):
                     name = "[B]"+sub_text+"[/B] - "+name
 
             if name == None:
+                print(elem)
                 raise
 
             #TODO: also get the episode number
