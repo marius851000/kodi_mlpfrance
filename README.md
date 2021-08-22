@@ -24,4 +24,4 @@ Pour installer ces 2 plugins:
 - selectionner un des deux fichiers
 - recommencer depuis installer depuis un fichier zip avec le second fichier
 
-Veuillez notez que je ne n'ai tester cette extension uniquement avec kodi 18, bien qu'il pourrait marcher avec kodi 19.
+Cette extension marche uniquement avec kodi 19 (bien qu'elle pourrait potentiellement marcher avec des versions ultérieure)
