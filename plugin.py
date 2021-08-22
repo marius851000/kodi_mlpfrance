@@ -54,9 +54,9 @@ COUNTRY_TO_IETF = {
 if HAVE_EXTENSION:
     LANGUAGE_ORDER = map(lambda x: x.lower(), xbmcplugin.x_getLanguageOrder())
 else:
-    LANGUAGE_ORDER = ["fr", "en"]
+    LANGUAGE_ORDER = ["fr-FR", "en"]
 
-RESOLUTION_ORDER = ["720p", "1080p", "480p", "360p"]
+RESOLUTION_ORDER = ["1080p", "720p", "480p", "360p"]
 FORMAT_ORDER = ["mp4", "webm", "mkv"]
 
 LANGUAGE_LINK_MAP = mlpfrance.LANGUAGE_LINK_MAP
@@ -94,18 +94,18 @@ def get_favorite_avalaible_language(data):
     else:
         return get_favorite_language_in_list(avalaible_language)
 
-def get_favorite_language_in_list(list):
+def get_favorite_language_in_list(lang_list):
     print("fav lang")
-    list_source = list
-    list = map(lambda x: x.lower(), list)
-    print(list)
+    list_source = lang_list
+    lang_list = [x.lower() for x in lang_list]
+    print(lang_list)
     print(LANGUAGE_ORDER)
     # search for y_x -> y_x (exact match)
     for lang in LANGUAGE_ORDER:
         if len(lang.split("-")) >= 2:
-            if lang.lower() in list:
-                return list_source[list.index(lang.lower())]
-    list_without_subtag = map(lambda x: x.split("-")[0], list)
+            if lang.lower() in lang_list:
+                return list_source[lang_list.index(lang.lower())]
+    list_without_subtag = [x.split("-")[0] for x in lang_list]
     print(list_without_subtag)
     # search for y_x -> y or y_x -> y_z or y -> y
     for lang in LANGUAGE_ORDER:
@@ -113,7 +113,7 @@ def get_favorite_language_in_list(list):
         if language_code in list_without_subtag:
             return list_source[list_without_subtag.index(language_code)]
     # default to the first language in list
-    return list[0]
+    return list_source[0]
 
 
 def country_code_to_ietf(country_code):
@@ -162,13 +162,15 @@ def play_video(video, avalaible_languages, selected_language):
     for resolution in RESOLUTION_ORDER:
         if resolution not in medias_by_resolution:
             continue
-        break_after_this = False
+        
+        found = False
         for format in FORMAT_ORDER:
             if format in medias_by_resolution[resolution]:
                 media_url = medias_by_resolution[resolution][format]
-                break_after_this = True
+                found = True
                 break
-        if break_after_this:
+        
+        if found:
             break
 
     video_item = xbmcgui.ListItem(path = media_url)
@@ -307,9 +309,9 @@ def display_movie_videos(elements, movie_id):
 
 def play_movie_video(movie_id, video_nb):
     video_element = mlpfrance.get_movie_avalaible_videos(MOVIE_DATA[movie_id])[video_nb]
-    avalaible_languages = map(lambda x: country_code_to_ietf(x), video_element[1]["languages"])
+    avalaible_languages = [country_code_to_ietf(x) for x in video_element[1]["languages"]]
     language = get_favorite_language_in_list(avalaible_languages)
-    play_video(mlpfrance.get_video_page(video_element[1]["link"]+"?ep="+video_element[1]["lang_prefix"]+ietf_to_country_code(language).upper()), avalaible_languages, language)
+    play_video(mlpfrance.get_video_page(video_element[1]["link"]+"?ep="+video_element[1]["lang_prefix"]+ietf_to_country_code(language).upper(), "mlp2017"), avalaible_languages, language)
 
 def list_movie_folder_generic(movie_id):
     elements = mlpfrance.get_movie_avalaible_videos(MOVIE_DATA[movie_id])

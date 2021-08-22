@@ -67,13 +67,13 @@ def get_header_link_list(category, url = "http://mlp-france.com/accueil.php"):
         menu_text_elem = menu.find("b")
         if menu_text_elem == None:
             menu_text_elem = menu.find("strong")
-        menu_name = menu_text_elem.text.strip().encode("utf8")
+        menu_name = menu_text_elem.text.strip()
         if menu_name == category:
             menu_data = []
             for menu_element in menu.find_all("li"):
                 menu_data.append({
                     "link": get_good_url(menu_element.find("a").get("href"), url),
-                    "text": menu_element.find("a").text.encode("utf8")
+                    "text": menu_element.find("a").text
                 })
             return menu_data, soup
     return None, soup
@@ -211,7 +211,7 @@ def map_playable(content, is_playable):
             item["is_playable"] = is_playable
     return content
 
-def get_video_page(url):
+def get_video_page(url, special_id = None):
     soup = get_soup(url)
     video_script_tag = soup.find("div", attrs={"id": "makamour"}).next_element.next_element
     if sys.version_info.major == 3:
@@ -252,6 +252,9 @@ def get_video_page(url):
             videos_files["mkv"]["1080p"] = possible_download_hd.get("href")
     #except AttributeError:
     #    pass
+
+    if special_id == "mlp2017":
+        videos_files["mkv"]["1080p"] = "http://37.187.117.55/pinkie/My%20Little%20Pony%20Le%20Film%20-%20French%20BDRip.mkv"
 
     maybe_choice = video_script_tag.next_sibling.next_sibling
     choices = []
