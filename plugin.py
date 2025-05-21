@@ -10,8 +10,6 @@ try:
 except:
     from urllib.parse import parse_qsl
 
-import plugin_param
-
 import xbmcgui
 import xbmcplugin
 
@@ -124,7 +122,7 @@ def ietf_to_country_code(ietf):
         if COUNTRY_TO_IETF[country_code] == ietf:
             return country_code
 
-def display_folder(folder):
+def display_folder(folder, content_type):
     display_folder = True
     if len(folder) == 1:
         display_folder = False
@@ -143,7 +141,7 @@ def display_folder(folder):
                 if "kind" in element_to_display:
                     elem_item.setInfo(element_to_display["kind"])
                 else:
-                    elem_item.setInfo(plugin_param.CATEGORY, {})
+                    elem_item.setInfo(content_type, {})
                 is_folder = not element_to_display["is_playable"]
             xbmcplugin.addDirectoryItem(_handle, element_to_display["kodi_link"], elem_item, is_folder)
     xbmcplugin.endOfDirectory(_handle)
@@ -208,7 +206,7 @@ def select_category():
 def list_seasons():
     display_folder(map_kodi_link(mlpfrance.list_seasons(),
         lambda x: get_url(action="list_episodes", season=x["link"].split("/")[-1].split(".")[0])
-    ))
+    ), "video")
 
 def list_episodes(season):
     to_display = mlpfrance.list_episodes(season)
@@ -234,7 +232,8 @@ def list_episodes(season):
         for item_to_del in to_del:
             del category[1][item_to_del]
     display_folder(
-        to_display
+        to_display,
+        "video"
     )
 
 def play_episode(season, episode, have_fr, have_en):
@@ -295,7 +294,7 @@ def list_films():
             this_data = films_data[film["name"]]
             film["is_playable"] = this_data["direct"]
             film["kodi_link"] = get_url(action=this_data["link"])
-    display_folder(films)
+    display_folder(films, "video")
 
 def display_movie_videos(elements, movie_id):
     nb = 0
@@ -431,7 +430,7 @@ def list_bonus_videos(section_nb):
         ),
         True
     )
-    display_folder(elements_to_display)
+    display_folder(elements_to_display, "video")
 
 def get_video_data_biling(post_fr, post_en):
     if post_fr == "none":
@@ -460,7 +459,7 @@ def list_mashups():
         ),
         True
     )
-    display_folder(elements_to_display)
+    display_folder(elements_to_display, "video")
 
 def play_mashup_video(post_fr, post_en):
     (post, lang, avalaible_lang) = get_video_data_biling(post_fr, post_en)
@@ -488,7 +487,7 @@ def list_g1():
         ),
         True
     )
-    display_folder(data)
+    display_folder(data, "video")
 
 def play_g1_video(post_fr, post_en):
     (post, lang, avalaible_language) = get_video_data_biling(post_fr, post_en)
@@ -504,7 +503,7 @@ def list_g2():
         ),
         True
     )
-    display_folder(data)
+    display_folder(data, "video")
 
 def play_g2_video(post_fr, post_en):
     (post, lang, avalaible_language) = get_video_data_biling(post_fr, post_en)
@@ -520,7 +519,7 @@ def list_g3():
         ),
         True
     )
-    display_folder(data)
+    display_folder(data, "video")
 
 ##########
 # MUSICS #
@@ -555,7 +554,7 @@ def select_music_categories():
     elements = [('', map(music_category_map, elements[0][1]))]
     karaoke_item = xbmcgui.ListItem(label = "karaoké")
     xbmcplugin.addDirectoryItem(_handle, get_url(action="list_bonus_videos", section_nb=7), karaoke_item, True)
-    display_folder(elements)
+    display_folder(elements, "audio")
 
 def list_albums(page):
     album_list = mlpfrance.get_music_page_data("http://mlp-france.com/extras/chansons/{}.php".format(page))
@@ -592,7 +591,7 @@ def play_album_music(page, number, music_id):
 
 def router(paramstring):
     params = dict(parse_qsl(paramstring))
-    if params:
+    if "action" in params:
         action = params["action"]
         if action == 'list_seasons':
             list_seasons()
@@ -661,7 +660,7 @@ def router(paramstring):
         else:
             raise ValueError('action not reconized in paramstring: {0}'.format(paramstring))
     else:
-        if plugin_param.CATEGORY == "video":
+        if params["content_type"] == "video":
             select_category()
         else:
             select_music_categories()

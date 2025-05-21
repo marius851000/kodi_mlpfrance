@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="plugin.audio.mlpfrance"
+<addon id="plugin.audiovideo.mlpfrance"
 version="1.2.0"
 name="mlp france"
 provider-name="marius">
@@ -9,10 +9,10 @@ provider-name="marius">
   <import addon="script.module.requests"          version="2.4.3"/>
 </requires>
 <extension point="xbmc.python.pluginsource" library="plugin.py">
-  <provides>audio</provides>
+  <provides>video audio</provides>
 </extension>
 <extension point="xbmc.addon.metadata">
-  <summary lang="en">Watch MLP musics from mlp-france.fr</summary>
-  <summary lang="en">Regarder des musiques de MLP depuis mlp-france.fr</summary>
+  <summary lang="en">Watch MLP videos/musics from mlp-france.fr</summary>
+  <summary lang="en">Regarder des video/musiques de MLP depuis mlp-france.fr</summary>
 </extension>
 </addon>
