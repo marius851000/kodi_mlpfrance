@@ -39,13 +39,18 @@ def get_good_url(post, url):
     url = os.path.dirname(url)
 
     if post[0] == "/":
-        return "http://mlp-france.com"+post
+        return "https://mlp-france.com"+post
     elif post[:4] == "http":
         return post
     else:
-        while post[:3] == "../":
-            post = post[3:]
-            url = os.path.dirname(url)
+        while True:
+            if len(post) >= 3 and post[:3] == "../":
+                post = post[3:]
+                url = os.path.dirname(url)
+            elif len(post) >= 2 and post[:2] == "./":
+                post = post[2:]
+            else:
+                break
         return os.path.join(url, post)
 
 def is_element_presentation(elem):
@@ -71,9 +76,12 @@ def get_header_link_list(category, url = "http://mlp-france.com/accueil.php"):
         if menu_name == category:
             menu_data = []
             for menu_element in menu.find_all("li"):
+                a_link = menu_element.find("a")
+                if a_link == None:
+                    continue
                 menu_data.append({
-                    "link": get_good_url(menu_element.find("a").get("href"), url),
-                    "text": menu_element.find("a").text
+                    "link": get_good_url(a_link.get("href"), url),
+                    "text": a_link.text
                 })
             return menu_data, soup
     return None, soup
@@ -306,16 +314,16 @@ def get_movie_avalaible_videos(url):
     return avalaible_videos
 
 def list_seasons():
-    url = "http://mlp-france.com/episodes/index.php"
-    header, soup = get_header_link_list("ÉPISODES", url)
+    url = "https://mlp-france.com/episodes/index.php"
+    header, soup = get_header_link_list("FiM/EqG", url)
     content = get_list_page_data(url, soup = soup)
     return map_playable(merge_with_header(content, header), False)
 
 def list_episodes(season):
-    return get_list_page_data("http://mlp-france.com/episodes/{}.php".format(season), True)
+    return get_list_page_data("https://mlp-france.com/episodes/{}.php".format(season), True)
 
 def get_episode(season, episode, language):
-    video_url = "http://mlp-france.com/episodes/{}/{}.php?ep={}".format(season, LANGUAGE_LINK_MAP[language], episode)
+    video_url = "https://mlp-france.com/episodes/{}/{}.php?ep={}".format(season, LANGUAGE_LINK_MAP[language], episode)
     return get_video_page(video_url)
 
 def get_music_page_data(url):
@@ -358,7 +366,7 @@ def get_music_page_data(url):
             music_dict = json.loads(new_json_string)
             for music in music_dict:
                 old_length_split = music["length"].split(":")
-                if old_length_split[0] == "": # happen here: http://mlp-france.com/extras/chansons/saison2.php
+                if old_length_split[0] == "": # happen here: https://mlp-france.com/extras/chansons/saison2.php
                     old_length_split[0] = 0
                 music["length"] = int(old_length_split[0])*60+int(old_length_split[1])
                 if "image" in music:
@@ -371,7 +379,7 @@ def get_music_page_data(url):
 
 
 def list_films():
-    url = "http://mlp-france.com/films/index.php"
+    url = "https://mlp-france.com/films/index.php"
     header, soup = get_header_link_list("FILMS", url)
     content = get_list_page_data(url, soup = soup)
     return merge_with_header(content, header)

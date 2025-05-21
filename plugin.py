@@ -184,7 +184,7 @@ def select_category():
     sub_category = [
         ["episodes", "list_seasons"],
         ["films", "list_films"],
-        ["bonus officiel", "list_bonus", "http://mlp-france.com/source/banni%C3%A8re%20bonus.png"],
+        ["bonus officiel", "list_bonus", "https://mlp-france.com/source/banbonus.png"],
         ["mashup films", "list_mashups", "http://mlp-france.com/source/banni%C3%A8re%20Extras%20v2.png"],
         #TODO: commented data
         #["retro mlp", "list_retro_mlp", "http://mlp-france.com/source/retroban.png"]
