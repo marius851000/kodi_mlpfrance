@@ -380,6 +380,11 @@ def get_music_page_data(url):
 
 def list_films():
     url = "https://mlp-france.com/films/index.php"
-    header, soup = get_header_link_list("FILMS", url)
+    header, soup = get_header_link_list("FiM/EqG", url)
     content = get_list_page_data(url, soup = soup)
+
+    for category in content:
+        for link in category[1]:
+            if link["link"].endswith("mlpnewgen.php"):
+                link["name"] = "MY LITTLE PONY NOUVELLE GÉNÉRATION"
     return merge_with_header(content, header)

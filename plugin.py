@@ -281,16 +281,19 @@ def play_egms(episode, channel, have_vf, have_vo):
     play_video(mlpfrance.get_video_page(video_page_url), av_lang, lang)
 
 def list_films():
-    films = mlpfrance.list_films();
+    films = mlpfrance.list_films()
     films_data = {
         "EQUESTRIA GIRLS": {"direct": True, "link": "play_eqg"},
         "RAINBOW ROCKS": {"direct": False, "link": "list_rbr"},
         "FRIENDSHIP GAMES": {"direct": False, "link": "list_fsg"},
         "LEGEND OF EVERFREE": {"direct": True, "link": "play_loe"},
-        "MY LITTLE PONY LE FILM": {"direct": False, "link": "list_mlp2017"}
+        "MY LITTLE PONY LE FILM": {"direct": False, "link": "list_mlp2017"},
+        #TODO:
+        "MY LITTLE PONY NOUVELLE GÉNÉRATION": {"direct": False, "link": "list_mlpnewgen"},
     }
     for category in films:
         for film in category[1]:
+            print(film)
             this_data = films_data[film["name"]]
             film["is_playable"] = this_data["direct"]
             film["kodi_link"] = get_url(action=this_data["link"])
